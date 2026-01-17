@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-leaker
+  labels:
+    app: leaker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leaker
+  template:
+    metadata:
+      labels:
+        app: leaker
+    spec:
+      containers:
+      - name: stress-test
+        image: polinux/stress
+        # This command tells the container to use 150MB of RAM
+        args: ["--vm", "1", "--vm-bytes", "150M", "--vm-keep"]
+        resources:
+          limits:
+            memory: "100Mi" # This is lower than 150M, causing OOMKilled
+          requests:
+            memory: "50Mi"
